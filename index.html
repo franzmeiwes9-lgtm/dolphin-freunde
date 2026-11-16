@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  Dolphin Freunde: redirect page for invitation links.
+  Share link: https://franzmeiwes9-lgtm.github.io/dolphin-freunde/#<code>. The code is in the fragment, so it never reaches the web
+  server, link previews or a referrer. The page only opens dolphin-freunde://join/<code>.
+  Static file, no build step. Once it is hosted, put its URL into InviteLink::WEB_JOIN_URL
+  (Source/Core/UICommon/InviteLink.h) and rebuild.
+-->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'">
+<meta property="og:title" content="Komm spielen! (Dolphin Freunde)">
+<meta property="og:description" content="Klicke, um dem Raum in Dolphin Freunde beizutreten.">
+<title>Dolphin Freunde Einladung</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#1b1d21;--card:#fff;--acc:#0a6cff}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--fg:#e8eaed;--card:#22252b;--acc:#4c8dff}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:30rem;margin:12vh auto;padding:1.5rem;background:var(--card);border-radius:12px}
+@media (max-width:34rem){main{margin:6vh 1rem}}
+a.btn{display:inline-block;padding:.75rem 1.5rem;background:var(--acc);color:#fff;border-radius:8px;text-decoration:none;font-weight:600}
+.small{font-size:.9rem;opacity:.8} code{font-size:1.1rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Komm spielen!</h1>
+<p id="msg">Dolphin Freunde wird geöffnet …</p>
+<p><a id="open" class="btn" href="#">Dolphin Freunde öffnen</a></p>
+<p class="small" id="manual">Klappt nicht? Öffne Dolphin Freunde, klicke auf „Freunde“ und gib diesen Code ein: <code id="code"></code></p>
+<noscript><p class="small">Bitte erlaube JavaScript auf dieser Seite. Oder öffne Dolphin Freunde, klicke auf „Freunde“ und gib die 8 Zeichen nach dem # im Link ein.</p></noscript>
+<p class="small">Noch nicht installiert? Frag die Person, die dich eingeladen hat.</p>
+</main>
+<script>
+(function(){
+  var msg=document.getElementById("msg"),btn=document.getElementById("open"),
+      manual=document.getElementById("manual"),codeEl=document.getElementById("code"),timer=0;
+  function show(){
+    clearTimeout(timer);
+    var raw=(location.hash||"").slice(1).trim();
+    if(!/^[0-9a-fA-F]{8}$/.test(raw)){
+      msg.textContent="Dieser Einladungslink ist kaputt. Bitte frag nach einem neuen.";
+      btn.style.display="none";manual.style.display="none";return;
+    }
+    var code=raw.toLowerCase(),url="dolphin-freunde://join/"+code;
+    msg.textContent="Dolphin Freunde wird geöffnet …";
+    btn.style.display="";manual.style.display="";
+    codeEl.textContent=code;btn.href=url;
+    timer=setTimeout(function(){location.href=url;},300);
+  }
+  // A second link opened in the same tab only changes the fragment, so check again then.
+  window.addEventListener("hashchange",show);
+  show();
+})();
+</script>
+</body>
+</html>
